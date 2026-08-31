@@ -1,5 +1,7 @@
 server:
   port: 5080
+  error:
+    include-message: always
 
 spring:
   datasource:

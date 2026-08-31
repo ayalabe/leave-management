@@ -28,12 +28,12 @@ public class LeaveRequestsController {
     }
 
     @GetMapping
-    public ResponseEntity<List<LeaveRequest>> getAll() {
-        return ResponseEntity.ok(leaveRequestService.getAll());
+    public List<LeaveRequest> getAll() {
+        return leaveRequestService.getAll();
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<LeaveRequest>> search(@RequestParam String name) {
+    public List<LeaveRequest> search(@RequestParam String name) {
         String sql = "SELECT * FROM leave_requests WHERE employee_id IN " +
                 "(SELECT id FROM employees WHERE name LIKE :pattern)";
 
@@ -43,16 +43,16 @@ public class LeaveRequestsController {
                 .setParameter("pattern", "%" + name + "%")
                 .getResultList();
 
-        return ResponseEntity.ok(results);
+        return results;
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody CreateLeaveRequestDto dto) {
-        return leaveRequestService.create(dto);
+    public ResponseEntity<LeaveRequest> create(@RequestBody CreateLeaveRequestDto dto) {
+        return ResponseEntity.ok(leaveRequestService.create(dto));
     }
 
     @PostMapping("/{id}/approve")
-    public ResponseEntity<?> approve(@PathVariable Long id) {
-        return leaveRequestService.approve(id);
+    public ResponseEntity<LeaveRequest> approve(@PathVariable Long id) {
+        return ResponseEntity.ok(leaveRequestService.approve(id));
     }
 }

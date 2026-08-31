@@ -80,7 +80,7 @@ export class LeaveRequestsComponent implements OnInit, OnDestroy {
           this.loadRequests();
         },
         error: err => {
-          this.submitError = err.error ?? 'Failed to submit request';
+          this.submitError = err.error?.message ?? err.error ?? 'Failed to submit request';
         }
       });
   }
@@ -99,7 +99,7 @@ export class LeaveRequestsComponent implements OnInit, OnDestroy {
         },
         error: err => {
           this.approveLoading.delete(id);
-          this.approveError.set(id, err.error ?? 'Failed to approve');
+          this.approveError.set(id, err.error?.message ?? err.error ?? 'Failed to approve');
         }
       });
   }
