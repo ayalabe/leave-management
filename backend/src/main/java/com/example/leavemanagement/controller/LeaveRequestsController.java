@@ -10,6 +10,7 @@ import com.example.leavemanagement.repository.LeaveRequestRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.temporal.ChronoUnit;
@@ -93,6 +94,35 @@ public class LeaveRequestsController {
 
         leaveRequestRepository.save(request);
 
+        return ResponseEntity.ok(request);
+    }
+
+    // POST /api/leave-requests/{id}/approve
+    @PostMapping("/{id}/approve")
+    @Transactional
+    public ResponseEntity<?> approve(@PathVariable Long id) {
+        LeaveRequest request = leaveRequestRepository.findByIdWithLock(id).orElse(null);
+        if (request == null) {
+            return ResponseEntity.status(404).body("Leave request not found");
+        }
+        if (request.getStatus() != LeaveStatus.PENDING) {
+            return ResponseEntity.status(409).body("Request is already " + request.getStatus());
+        }
+
+        if (request.getType() == LeaveType.VACATION) {
+            Employee employee = employeeRepository.findById(request.getEmployeeId()).orElseThrow();
+            int used = leaveRequestRepository
+                    .findByEmployeeIdAndTypeAndStatus(request.getEmployeeId(), LeaveType.VACATION, LeaveStatus.APPROVED)
+                    .stream()
+                    .mapToInt(LeaveRequest::getDays)
+                    .sum();
+            if (used + request.getDays() > employee.getAnnualQuota()) {
+                return ResponseEntity.badRequest().body("Approving this request would exceed the employee's annual quota");
+            }
+        }
+
+        request.setStatus(LeaveStatus.APPROVED);
+        leaveRequestRepository.save(request);
         return ResponseEntity.ok(request);
     }
 }
