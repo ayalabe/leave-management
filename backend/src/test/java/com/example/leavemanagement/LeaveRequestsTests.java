@@ -64,7 +64,30 @@ class LeaveRequestsTests {
         assertEquals(before + 1, leaveRequests.count());
     }
 
-    // TODO (candidate): add a test that proves the balance bug is fixed —
-    // an employee who has already used most of the quota should NOT be able
-    // to create a request that pushes them over the annual quota.
+    @Test
+    void create_ExceedsQuotaWhenCombinedWithApproved_Returns400() {
+        Employee emp = new Employee();
+        emp.setName("Quota Test Emp");
+        emp.setAnnualQuota(20);
+        employees.save(emp);
+
+        com.example.leavemanagement.model.LeaveRequest existing = new com.example.leavemanagement.model.LeaveRequest();
+        existing.setEmployeeId(emp.getId());
+        existing.setType(LeaveType.VACATION);
+        existing.setStartDate(LocalDate.of(2026, 1, 1));
+        existing.setEndDate(LocalDate.of(2026, 1, 18));
+        existing.setDays(18);
+        existing.setStatus(com.example.leavemanagement.model.LeaveStatus.APPROVED);
+        leaveRequests.save(existing);
+
+        CreateLeaveRequestDto dto = new CreateLeaveRequestDto();
+        dto.setEmployeeId(emp.getId());
+        dto.setType(LeaveType.VACATION);
+        dto.setStartDate(LocalDate.of(2026, 3, 1));
+        dto.setEndDate(LocalDate.of(2026, 3, 5));
+
+        ResponseEntity<?> result = controller.create(dto);
+
+        assertEquals(400, result.getStatusCode().value());
+    }
 }
