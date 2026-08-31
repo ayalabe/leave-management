@@ -95,7 +95,4 @@ String sql = "... WHERE name LIKE '%" + name + "%'";
 
 ## 6. הוראות הרצה
 
-הפרויקט הורץ ללא Docker (בשל מגבלות מחשב - virtualization לא זמין).
-- PostgreSQL מותקן מקומית, DB בשם `leave`, משתמש `leave`
-- Backend: `java -jar target/leave-management-1.0.0.jar` מתיקיית `backend`
-- Frontend: `npm start` מתיקיית `frontend`
+לפי הוראות ה-README המקוריות - `docker compose up --build` מריץ את הכל.
